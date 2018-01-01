@@ -33,7 +33,14 @@ void particles::setup() {
             if(index < particleNum){
                 particle.addVertex(ofVec3f(0,0,0));
                 particle.addTexCoord(ofVec2f(i, j));
-                particle.addColor(parCol);
+                particle.addColor(
+                                ofFloatColor(
+                                             0.3,
+                                             0.5,
+                                             float(index) / float(particleNum),
+                                             float(index) / float(particleNum)
+                                             )
+                                );
             }
         }
     }
@@ -70,13 +77,14 @@ void particles::setup() {
     
     showTex = false;
     
-    sparkImg.load("images/spark.png");
+//    ofDisableArbTex();
+    sparkImg.load("images/sphere1.png");
     imgWidth = sparkImg.getWidth();
     imgHeight = sparkImg.getHeight();
 }
 
 void particles::update(float ptEmNoise, ofVec2f v, ofColor c, ofVec2f p, float ptTS, float ptSc, float ptSpXY, float ptSpZ) {
-    for (int i = 0; i < particleNum; i++) particle.setColor(i, c);
+//    for (int i = 0; i < particleNum; i++) particle.setColor(i, c);
     float time = ofGetElapsedTimef();
     
     //update stamp strength
@@ -85,12 +93,12 @@ void particles::update(float ptEmNoise, ofVec2f v, ofColor c, ofVec2f p, float p
     //update position
     prevEmitterPos = emitterPos;
     emitterPos = ofVec3f(
-//                         ofSignedNoise(time, 0, 0) * ptEmNoise + W / 2,
-//                         ofSignedNoise(0, time, 0) * ptEmNoise + H / 2,
-//                         ofSignedNoise(0, 0, time) * ptEmNoise
-                         ptEmNoise * sin(time) + W / 2,
-                         ptEmNoise * cos(time) + H / 2,
-                         0.0
+                         ofSignedNoise(time, 0, 0) * ptEmNoise + W / 2,
+                         ofSignedNoise(0, time, 0) * ptEmNoise + H / 2,
+                         ofSignedNoise(0, 0, time) * ptEmNoise
+//                         ptEmNoise * sin(time) + W / 2,
+//                         ptEmNoise * cos(time) + H / 2,
+//                         0.0
                          );
     
     pingPong.dst->begin();
@@ -118,30 +126,22 @@ void particles::update(float ptEmNoise, ofVec2f v, ofColor c, ofVec2f p, float p
 
 void particles::draw(int ptSz) {
     glPointSize(ptSz);
-    
-    ofEnableBlendMode(OF_BLENDMODE_ADD);
-    
-    render.begin();
-    //    render.setUniform1f("pointSize", ptSz);
-    render.setUniformTexture("u_posAndAgeTex", pingPong.src->getTexture(0), 0);
-    render.setUniformTexture("sparkTex", sparkImg.getTexture(), 1);
-    render.setUniform1f("size", (float)ptSz);
-    render.setUniform1i("resolution", (float)texRes);
-    render.setUniform1f("imgWidth", (float)sparkImg.getWidth());
-    render.setUniform1f("imgHeight", (float)sparkImg.getHeight());
-    
     ofPushStyle();
-    ofEnableBlendMode( OF_BLENDMODE_ADD );
-    ofSetColor(255);
+    {
+        render.begin();
+        render.setUniform1f("pointSize", ptSz);
+        render.setUniformTexture("u_posAndAgeTex", pingPong.src->getTexture(0), 0);
+        render.setUniformTexture("sparkTex", sparkImg.getTexture(), 1);
+        render.setUniform1f("size", (float)ptSz);
+        render.setUniform1i("resolution", (float)texRes);
+        render.setUniform1f("imgWidth", (float)sparkImg.getWidth());
+        render.setUniform1f("imgHeight", (float)sparkImg.getHeight());
     
-    particle.draw();
-    
-    ofDisableBlendMode();
-    glEnd();
-    
-    render.end();
-    
-    //    ofDisablePointSprites();
+        ofEnableBlendMode( OF_BLENDMODE_ADD );
+        ofSetColor(255);
+        particle.draw();
+        render.end();
+    }
     ofPopStyle();
     
 }

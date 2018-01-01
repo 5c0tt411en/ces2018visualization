@@ -3,7 +3,7 @@
 #extension GL_EXT_gpu_shader4 : enable
 
 uniform float size;
-uniform float imgWidth, imgHeight;
+uniform float imgWidth, imzgHeight;
 
 void main(void){
     
